@@ -1,66 +1,115 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include "edit_distance.h"
 
-int naiveEdit(char*, char*, int, int);
-int dynamicEdit(char*, char*, int, int);
-int min(int, int, int);
-
-enum operation{MATCH, INSERT, DELETE};
-
-int main(){
-    char s[] = "you should not";
-    char t[] = "thou shalt not";
-    time_t begin = clock();
-    printf("%d\n", naiveEdit(s, t, strlen(s), strlen(t)));
-    time_t end = clock();
-    printf("Naive edit distance takes %.4f millisecs\n", (double)(end - begin));
-    begin = clock();
-    printf("%d\n", dynamicEdit(s, t, strlen(s), strlen(t)));
-    end = clock();
-    printf("Dynamic edit distance takes %.4f millisecs\n", (double)(end - begin));
-    return 0;
-}
-
-int naiveEdit(char* s, char* t, int i, int j){
-    int k, opts[3];
-    int minEditDistance;
-
-    if(i == 0) return j;
-    if(j == 0) return i;
-
-    opts[MATCH] = naiveEdit(s, t, i - 1, j - 1) + (s[i - 1] == t[j - 1] ? 0 : 1);
-    opts[INSERT] = naiveEdit(s, t, i - 1, j) + 1;
-    opts[DELETE] = naiveEdit(s, t, i, j - 1) + 1;
-
-    minEditDistance = opts[MATCH];
-    for(k = INSERT; k <= DELETE; k++){
-        minEditDistance = (opts[k] <= minEditDistance ? opts[k] : minEditDistance);
+int EditDistance(char* s, char* t){
+    int i, j, k, opts[3];
+    int initialSize = (strlen(s) <= strlen(t)) ? strlen(s) : strlen(t);
+    cell** table;
+    table = (cell**)malloc(sizeof(cell) * (initialSize + 1));
+    for(i = 0; i <= initialSize; i++){
+        table[i] = (cell*)malloc(sizeof(cell) * (initialSize + 1));
     }
-    
-    return minEditDistance;
-}
+    for(i = 0; i <= initialSize; i++){
+        rowInit(table, i);
+        columnInit(table, i);
+    }
 
-int dynamicEdit(char* s, char* t, int i, int j){
-    int table[i + 1][j + 1];
-    int m, n;
-    for(m = 0; m <= i; m++){
-        for(n = 0; n <= j; n++){
-            if(m == 0){
-                table[m][n] = n;
-            } else if(n == 0){
-                table[m][n] = m;
-            } else if(s[m - 1] == t[n - 1]){
-                table[m][n] = table[m - 1][n - 1];
-            } else {
-                table[m][n] = 1 + min(table[m - 1][n - 1], table[m - 1][n], table[m][n - 1]);
+    for(i = 1; i <= strlen(s); i++){
+        for(j = 1; j <= strlen(t); j++){
+            opts[MATCH] = table[i - 1][j - 1].cost + match(s[i - 1], t[j - 1]);
+            opts[INSERT] = table[i][j - 1].cost + indel(t[j - 1]);
+            opts[DELETE] = table[i - 1][j].cost + indel(s[i - 1]);
+
+            table[i][j].cost = opts[MATCH];
+            table[i][j].parent = MATCH;
+            for(k = INSERT; k <= DELETE; k++){
+                if(opts[k] < table[i][j].cost){
+                    table[i][j].cost = opts[k];
+                    table[i][j].parent = k;
+                }
             }
         }
     }
-    return table[i][j];
+
+    for(i = 0; i <= strlen(s); i++){
+        for(j = 0; j <= strlen(t); j++){
+            printf("%5d", table[i][j].parent);
+        }
+        puts("");
+    }
+    goalCell(s, t, &i, &j);
+    k = table[i][j].cost;
+
+    reconstructPath(table, s, t, i, j);
+    puts("");
+    for(i = 0; i <= initialSize; i++){
+        free(table[i]);
+    }
+    free(table);
+    return k;
 }
 
-int min(int a, int b, int c){
-    return (a <= b && a <=c) ? a : (b <= c && b <= a) ? b : c;
+void rowInit(cell** table, int i){
+    table[0][i].cost = i;
+    if(i > 0){
+        table[0][i].parent = INSERT;
+    } else {
+        table[0][i].parent = -1;
+    }
+}
+
+void columnInit(cell** table, int i){
+    table[i][0].cost = i;
+    if(i > 0){
+        table[i][0].parent = DELETE;
+    } else {
+        table[i][0].parent = -1;
+    }
+}
+
+int match(char a, char b){
+    if(a == b){
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+int indel(char a){
+    return 1;
+}
+
+void goalCell(char* s, char* t, int* i, int* j){
+    *i = strlen(s);
+    *j = strlen(t);
+}
+
+void reconstructPath(cell** table, char* s, char* t, int i, int j){
+    int parent = table[i][j].parent;
+    if(parent == -1) return;
+    if(parent == MATCH){
+        reconstructPath(table, s, t, i - 1, j - 1);
+        matchOut(s, t, i, j);
+    } else if(parent == INSERT){
+        reconstructPath(table, s, t, i, j - 1);
+        insertOut(t, j);
+    } else {
+        reconstructPath(table, s, t, i - 1, j);
+        deleteOut(s, i);
+    }
+    return;
+}
+
+void matchOut(char* s, char* t, int i, int j){
+    printf("%s", s[i - 1] == t[j - 1] ? "M" : "S");
+}
+
+void insertOut(char* t, int j){
+    printf("I");
+}
+
+void deleteOut(char* s, int i){
+    printf("D");
 }
