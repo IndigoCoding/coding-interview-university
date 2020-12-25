@@ -63,13 +63,3 @@ int dynamicEdit(char* s, char* t, int i, int j){
     }
     return table[i][j];
 }
-
-int min3(int substitute, int delete, int insert){
-    if(substitute <= delete && substitute <= insert){
-        return substitute;
-    } else if (delete <= substitute && substitute <= insert){
-        return delete;
-    } else {
-        return insert;
-    }
-}

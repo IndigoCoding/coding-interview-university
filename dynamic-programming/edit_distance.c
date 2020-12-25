@@ -5,7 +5,7 @@
 
 int EditDistance(char* s, char* t){
     int i, j, k, opts[3];
-    int initialSize = (strlen(s) <= strlen(t)) ? strlen(s) : strlen(t);
+    int initialSize = (strlen(s) > strlen(t)) ? strlen(s) : strlen(t);
     cell** table;
     table = (cell**)malloc(sizeof(cell) * (initialSize + 1));
     for(i = 0; i <= initialSize; i++){
@@ -33,12 +33,6 @@ int EditDistance(char* s, char* t){
         }
     }
 
-    for(i = 0; i <= strlen(s); i++){
-        for(j = 0; j <= strlen(t); j++){
-            printf("%5d", table[i][j].parent);
-        }
-        puts("");
-    }
     goalCell(s, t, &i, &j);
     k = table[i][j].cost;
 
