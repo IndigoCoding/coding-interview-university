@@ -9,7 +9,7 @@ _Bool cbFull(CircularBuffer* cb) {
     return (cb->end - cb->start +1) % MAX_CIRCULAR_LENGTH == 0;
 }
 
-void cbEnqueue(CircularBuffer* cb, int value) {
+void cbEnqueue(CircularBuffer* cb, intptr_t value) {
     if (cbFull(cb)) {
         return;
     }
@@ -17,11 +17,11 @@ void cbEnqueue(CircularBuffer* cb, int value) {
     cb->end = (cb->end + 1) % MAX_CIRCULAR_LENGTH;
 }
 
-int cbDequeue(CircularBuffer* cb) {
+intptr_t cbDequeue(CircularBuffer* cb) {
     if (cbEmpty(cb)) {
         return UNDEFINED;
     }
-    int value = cb->buffer[cb->start];
+    intptr_t value = cb->buffer[cb->start];
     cb->start = (cb->start + 1) % MAX_CIRCULAR_LENGTH;
     return value;
 }
@@ -32,7 +32,7 @@ void cbPrintInfo(CircularBuffer* cb) {
     if(cbEmpty(cb)) printf("EMPTY\n");
     int i = 0;
     while (cb->start + i < cb->end || (cb->end < cb->start && cb->start + i < cb->end + MAX_CIRCULAR_LENGTH)) {
-        printf("Index: %d, value: %d\n", (cb->start + i) % MAX_CIRCULAR_LENGTH, cb->buffer[(cb->start + i) % MAX_CIRCULAR_LENGTH]);
+        printf("Index: %d, value: %ld\n", (cb->start + i) % MAX_CIRCULAR_LENGTH, cb->buffer[(cb->start + i) % MAX_CIRCULAR_LENGTH]);
         i++;
     }
 }

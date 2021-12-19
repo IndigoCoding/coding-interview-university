@@ -18,12 +18,12 @@ void testCircularBuffer() {
     cbEnqueue(cb, 3);
     cbEnqueue(cb, 4);
     cbEnqueue(cb, 5);
-    printf("Dequeue %d\n", cbDequeue(cb));
-    printf("Dequeue %d\n", cbDequeue(cb));
+    printf("Dequeue %ld\n", cbDequeue(cb));
+    printf("Dequeue %ld\n", cbDequeue(cb));
     cbEnqueue(cb, 6);
     cbEnqueue(cb, 7);
-    printf("Dequeue %d\n", cbDequeue(cb));
-    printf("Dequeue %d\n", cbDequeue(cb));
+    printf("Dequeue %ld\n", cbDequeue(cb));
+    printf("Dequeue %ld\n", cbDequeue(cb));
     cbEnqueue(cb, 8);
     cbPrintInfo(cb);
     printf("######\n");

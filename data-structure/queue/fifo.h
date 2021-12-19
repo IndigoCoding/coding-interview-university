@@ -1,5 +1,6 @@
 #include "../linked-list/node.h"
-#define MAX_CIRCULAR_LENGTH 5
+#include <stdint.h>
+#define MAX_CIRCULAR_LENGTH 16
 
 typedef struct Queue {
     node* head;
@@ -13,13 +14,13 @@ _Bool qEmpty(Queue*);
 void qPrintInfo(Queue*);
 
 typedef struct CircularBuffer {
-    int buffer[MAX_CIRCULAR_LENGTH];
+    intptr_t buffer[MAX_CIRCULAR_LENGTH];
     int start;
     int end;
 } CircularBuffer;
 
-void cbEnqueue(CircularBuffer*, int);
-int cbDequeue(CircularBuffer*);
+void cbEnqueue(CircularBuffer*, intptr_t);
+intptr_t cbDequeue(CircularBuffer*);
 _Bool cbEmpty(CircularBuffer*);
 _Bool cbFull(CircularBuffer*);
 void cbPrintInfo(CircularBuffer*);
